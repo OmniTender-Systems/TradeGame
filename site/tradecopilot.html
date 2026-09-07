@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TradeCopilot — Real-Time Risk Sizing & Hard Drawdown Enforcer Chrome Extension for Funded Traders & Prop Firm Combines. Protect your daily loss limit on TradingView.">
+  <title>TradeCopilot — Prop Firm Risk Manager & Drawdown HUD</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* TradeCopilot Dedicated Styles */
+    :root {
+      --emerald: #10b981;
+      --crimson: #ef4444;
+      --amber: #e8a020;
+      --amber-gradient: linear-gradient(135deg, #e8a020, #f7792c);
+      --card-bg: #16171d;
+      --border-subtle: #242630;
+      --border-focus: #3a3d4d;
+    }
+
+    .tc-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: rgba(232, 160, 32, 0.12);
+      border: 1px solid rgba(232, 160, 32, 0.35);
+      color: var(--amber);
+      margin-bottom: 1.25rem;
+    }
+
+    .hero-container {
+      text-align: center;
+      padding: 4rem 1.25rem 3rem;
+      max-width: 52rem;
+      margin: 0 auto;
+    }
+
+    .hero-title {
+      font-size: clamp(2.4rem, 5.5vw, 3.8rem);
+      font-weight: 900;
+      line-height: 1.15;
+      color: var(--text-hi);
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-title span {
+      background: var(--amber-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 1.2rem;
+      color: var(--text);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem;
+    }
+
+    .btn-main {
+      background: var(--amber-gradient);
+      color: #0d0d0f;
+      font-weight: 800;
+      padding: 0.85rem 1.75rem;
+      border-radius: var(--radius);
+      text-decoration: none;
+      font-size: 1.05rem;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 20px rgba(232, 160, 32, 0.35);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .btn-main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(232, 160, 32, 0.5);
+    }
+
+    .btn-secondary {
+      background: var(--raised);
+      color: var(--text-hi);
+      border: 1px solid var(--border);
+      padding: 0.85rem 1.75rem;
+      border-radius: var(--radius);
+      font-size: 1.05rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--amber);
+    }
+
+    .firm-logos {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 1rem 0;
+      margin-top: 2rem;
+    }
+
+    /* Interactive Calculator Card */
+    .calc-section {
+      background: #121318;
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 3rem 0;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .calc-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .calc-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .calc-input-pane {
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+
+    .calc-output-pane {
+      background: #181a22;
+      border: 1px solid var(--border-focus);
+      border-radius: 8px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .input-label {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .preset-btn-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .preset-btn {
+      background: var(--raised);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .preset-btn.active, .preset-btn:hover {
+      background: rgba(232, 160, 32, 0.15);
+      border-color: var(--amber);
+      color: var(--amber);
+    }
+
+    .form-ctrl {
+      width: 100%;
+      background: #0e0f13;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.7rem 0.9rem;
+      color: var(--text-hi);
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+    }
+
+    .form-ctrl:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    .output-metric {
+      background: #121319;
+      border-radius: 8px;
+      padding: 1rem;
+      border: 1px solid #20222a;
+      margin-bottom: 0.75rem;
+    }
+
+    .metric-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 0.25rem;
+    }
+
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-hi);
+    }
+
+    .threat-meter {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
+      background: #111217;
+      border: 1px solid #22242c;
+    }
+
+    .meter-bar {
+      height: 8px;
+      background: #252833;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 0.5rem 0;
+    }
+
+    .meter-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--emerald), var(--amber), var(--crimson));
+      width: 100%;
+      transition: width 0.3s;
+    }
+
+    /* A/B Pricing Section */
+    .ab-pricing-container {
+      margin: 4rem 0;
+    }
+
+    .ab-switcher-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 2rem;
+      background: var(--surface);
+      padding: 0.6rem 1.2rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .ab-toggle-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 20px;
+      transition: all 0.2s;
+    }
+
+    .ab-toggle-btn.active {
+      background: var(--amber);
+      color: #0d0d0f;
+    }
+
+    .pricing-card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      max-width: 54rem;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+      .pricing-card-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .pricing-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .pricing-card.featured {
+      border-color: var(--amber);
+      background: #171922;
+      box-shadow: 0 10px 30px rgba(232, 160, 32, 0.15);
+    }
+
+    .pricing-badge {
+      position: absolute;
+      top: -12px;
+      right: 20px;
+      background: var(--amber-gradient);
+      color: #0d0d0f;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 2px 10px;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+
+    .price-num {
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--text-hi);
+      line-height: 1;
+      margin: 1rem 0 0.5rem;
+    }
+
+    .price-sub {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .benefit-list {
+      list-style: none;
+      margin-bottom: 2rem;
+    }
+
+    .benefit-list li {
+      padding: 0.4rem 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .benefit-list li::before {
+      content: "✓";
+      color: var(--emerald);
+      font-weight: 900;
+    }
+
+    /* Simulation View Modal / Box */
+    .hud-demo-box {
+      background: #0d0e12;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hud-mockup {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(22, 23, 29, 0.95);
+      border: 1px solid #e8a020;
+      border-radius: 8px;
+      padding: 12px 16px;
+      width: 240px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.8);
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- ── Site header ─────────────────────────────────────────── -->
+<header class="site-header" role="banner">
+  <div class="wrap">
+    <a class="site-logo" href="index.html" aria-label="TradeGame home">Trade<span>Game</span></a>
+    <nav aria-label="Site navigation">
+      <ul class="site-nav">
+        <li><a href="index.html">Main Game</a></li>
+        <li><a href="#calculator">Risk Calculator</a></li>
+        <li><a href="#features">HUD Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="downloads/tradecopilot-extension.zip" class="btn-main" style="padding: 0.4rem 0.9rem; font-size: 0.85rem;" download>Download (.zip)</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+
+    <!-- ── Hero Section ───────────────────────────────────────── -->
+    <section class="hero-container">
+      <div class="tc-badge">🛡️ Chrome Web Store & TradingView Extension</div>
+      <h1 class="hero-title">Never Blow Another<br><span>Prop Firm Combine</span></h1>
+      <p class="hero-subtitle">
+        TradeCopilot is the real-time risk HUD that calculates exact contract sizing, tracks daily loss headroom, and enforces hard circuit-breaker lockouts right on your TradingView chart.
+      </p>
+
+      <div class="cta-row">
+        <a id="hero-primary-cta" href="#pricing" class="btn-main">
+          ⚡ Start 14-Day Free Trial
+        </a>
+        <a href="#calculator" class="btn-secondary">
+          🧮 Launch Interactive Calculator
+        </a>
+      </div>
+
+      <div class="firm-logos">
+        <span>Apex Trader Funding</span>
+        <span>•</span>
+        <span>Topstep</span>
+        <span>•</span>
+        <span>FTMO</span>
+        <span>•</span>
+        <span>FundedNext</span>
+        <span>•</span>
+        <span>TradeDay</span>
+        <span>•</span>
+        <span>TradingView</span>
+      </div>
+    </section>
+
+    <!-- ── Interactive Drawdown Calculator Section ────────────── -->
+    <section id="calculator" class="calc-section">
+      <div class="calc-header">
+        <p class="section-label">Interactive Risk Engine</p>
+        <h2>Combine Survival & Position Size Calculator</h2>
+        <p style="color: var(--text-dim); max-width: 40rem; margin: 0 auto;">
+          Select your evaluation account tier or plug in custom parameters to see your exact maximum loss tolerance and contract sizing.
+        </p>
+      </div>
+
+      <div class="calc-grid">
+        <!-- Input controls -->
+        <div class="calc-input-pane">
+          <label class="input-label">Prop Firm Preset</label>
+          <div class="preset-btn-group">
+            <button type="button" class="preset-btn active" data-preset="topstep50k">Topstep 50K</button>
+            <button type="button" class="preset-btn" data-preset="apex50k">Apex 50K</button>
+            <button type="button" class="preset-btn" data-preset="ftmo50k">FTMO 50K</button>
+            <button type="button" class="preset-btn" data-preset="topstep100k">Topstep 100K</button>
+            <button type="button" class="preset-btn" data-preset="apex100k">Apex 100K</button>
+            <button type="button" class="preset-btn" data-preset="ftmo100k">FTMO 100K</button>
+          </div>
+
+          <label class="input-label" for="calc-balance">Account Balance ($)</label>
+          <input type="number" id="calc-balance" class="form-ctrl" value="50000" step="1000">
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div>
+              <label class="input-label" for="calc-risk-pct">Risk / Trade (%)</label>
+              <input type="number" id="calc-risk-pct" class="form-ctrl" value="1.0" step="0.25">
+            </div>
+            <div>
+              <label class="input-label" for="calc-daily-limit">Daily Loss Limit (%)</label>
+              <input type="number" id="calc-daily-limit" class="form-ctrl" value="4.0" step="0.5">
+            </div>
+          </div>
+
+          <label class="input-label">Market Instrument & Stop Distance</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div>
+              <select id="calc-instrument" class="form-ctrl">
+                <option value="20">NQ (Nasdaq Futures - $20/pt)</option>
+                <option value="2">MNQ (Micro Nasdaq - $2/pt)</option>
+                <option value="50">ES (S&P Futures - $50/pt)</option>
+                <option value="5">MES (Micro S&P - $5/pt)</option>
+                <option value="10">Forex Major (1 Standard Lot - $10/pip)</option>
+                <option value="1">Crypto BTC ($1/dollar)</option>
+              </select>
+            </div>
+            <div>
+              <input type="number" id="calc-stop-pts" class="form-ctrl" value="15" placeholder="Stop Dist (pts)">
+            </div>
+          </div>
+
+          <button type="button" id="trigger-hud-sim-btn" class="btn-secondary" style="width: 100%; font-size: 0.9rem;">
+            🖥️ Preview HUD Alert on Chart
+          </button>
+        </div>
+
+        <!-- Output display -->
+        <div class="calc-output-pane">
+          <div>
+            <div class="output-metric">
+              <div class="metric-title">Max Dollar Risk Per Trade</div>
+              <div class="metric-value" id="out-dollar-risk" style="color: var(--amber);">$500.00</div>
+              <div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 4px;">Standard risk threshold per execution</div>
+            </div>
+
+            <div class="output-metric">
+              <div class="metric-title">Strict Daily Cutoff Limit</div>
+              <div class="metric-value" id="out-daily-cutoff" style="color: var(--crimson);">-$2,000.00</div>
+              <div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 4px;">Account enters hard circuit-breaker freeze</div>
+            </div>
+
+            <div class="output-metric">
+              <div class="metric-title">Recommended Position Size</div>
+              <div class="metric-value" id="out-contracts" style="color: var(--emerald);">1.66 Contracts</div>
+              <div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 4px;">Based on 15 pt stop distance</div>
+            </div>
+
+            <div class="threat-meter">
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700;">
+                <span>Blowup Buffer:</span>
+                <span id="out-consecutive-losses" style="color: var(--amber);">4 Consecutive Losses</span>
+              </div>
+              <div class="meter-bar">
+                <div class="meter-fill" id="meter-fill-bar" style="width: 80%;"></div>
+              </div>
+              <div style="font-size: 0.75rem; color: var(--text-dim); text-align: right;">
+                4 full stop-outs remaining before daily combine fail
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 1.5rem; text-align: center;">
+            <a href="#pricing" class="btn-main" style="width: 100%; justify-content: center;">
+              Lock In Discipline with TradeCopilot
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live HUD Demo Simulation Box -->
+      <div id="hud-sim-container" class="hud-demo-box" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <div style="font-weight: 700; color: var(--amber); font-size: 0.9rem;">
+            SIMULATED TRADINGVIEW SESSION (NQ 1-Min Chart)
+          </div>
+          <button type="button" id="close-sim-btn" style="background: none; border: none; color: var(--text-dim); cursor: pointer;">✕ Close Demo</button>
+        </div>
+        <div style="height: 180px; background: #08090c; border: 1px dashed #242733; border-radius: 6px; display: flex; align-items: center; justify-content: center; position: relative;">
+          <span style="color: #4a4d5e; font-size: 0.9rem;">[ Interactive TradingView Chart Canvas ]</span>
+          
+          <div class="hud-mockup">
+            <div style="display: flex; justify-content: space-between; font-weight: 800; border-bottom: 1px solid #2f3340; padding-bottom: 4px; margin-bottom: 6px;">
+              <span>🛡️ TC HUD</span>
+              <span style="color: var(--emerald); font-weight: 700;">ACTIVE</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+              <span>Risk / Trade:</span>
+              <strong id="sim-hud-risk">$500.00</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+              <span>Max Contracts:</span>
+              <strong id="sim-hud-contracts" style="color: var(--emerald);">1.66 NQ</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; border-top: 1px dashed #2f3340; padding-top: 4px;">
+              <span>Buffer Left:</span>
+              <strong style="color: var(--amber);">$2,000.00</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Why Funded Traders Need TradeCopilot ────────────────── -->
+    <section id="features" style="padding: 3rem 0;">
+      <div style="text-align: center; max-width: 48rem; margin: 0 auto 3rem;">
+        <p class="section-label">Fail-Safe Architecture</p>
+        <h2>Why 92% of Prop Firm Traders Blow Up</h2>
+        <p style="color: var(--text);">
+          It is almost never bad technical analysis. It is tilt, oversized position sizing on a losing streak, and breaching the firm's strict trailing drawdown by a fraction of a tick.
+        </p>
+      </div>
+
+      <div class="pillars-grid">
+        <article class="pillar-card">
+          <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">🛑</div>
+          <h3>Hard Daily Cutoff Lockout</h3>
+          <p>
+            When your daily loss limit is hit, TradeCopilot throws an unmistakable fullscreen circuit-breaker alert over TradingView, preventing rage-clicking and revenge trading.
+          </p>
+        </article>
+
+        <article class="pillar-card">
+          <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">📐</div>
+          <h3>Tick-Exact Position Sizer</h3>
+          <p>
+            Automatically computes your exact allowable contract size for NQ, ES, MNQ, MES, forex lots, or crypto before you click buy. No mental math mistakes while price is moving.
+          </p>
+        </article>
+
+        <article class="pillar-card">
+          <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">📊</div>
+          <h3>PineScript v5 Indicator Sync</h3>
+          <p>
+            Generates a customized PineScript v5 indicator table directly mapped to your combine rules. Export to your TradingView chart with a single click.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ── Download & Chrome Web Store Section ──────────────────── -->
+    <section id="download" style="background: #13141b; border: 1px solid var(--border-subtle); border-radius: 12px; padding: 2.5rem 2rem; margin: 3rem 0; box-shadow: 0 16px 36px rgba(0,0,0,0.5);">
+      <div style="text-align: center; max-width: 44rem; margin: 0 auto 2rem;">
+        <div class="tc-badge" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); color: var(--emerald);">
+          🚀 Instant Unpacked Access & CWS Review
+        </div>
+        <h2>Install TradeCopilot in 30 Seconds</h2>
+        <p style="color: var(--text-dim); font-size: 0.95rem;">
+          Our official Chrome Web Store listing is currently undergoing final review. You can install the exact verified build directly in Developer Mode today with zero wait time.
+        </p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem;">
+          <div style="font-size: 1.5rem; font-weight: 900; color: var(--amber); margin-bottom: 0.5rem;">01</div>
+          <h4 style="margin-bottom: 0.5rem;">Download Extension ZIP</h4>
+          <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1rem;">
+            Click below to download the latest signed extension build (<code style="color: var(--amber);">tradecopilot-extension.zip</code>). Extract the archive on your machine.
+          </p>
+          <a href="downloads/tradecopilot-extension.zip" download class="btn-secondary" style="font-size: 0.85rem; padding: 0.5rem 1rem; width: 100%; text-align: center; display: inline-block;">
+            💾 Download Extension (.zip)
+          </a>
+        </div>
+
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem;">
+          <div style="font-size: 1.5rem; font-weight: 900; color: var(--amber); margin-bottom: 0.5rem;">02</div>
+          <h4 style="margin-bottom: 0.5rem;">Enable Developer Mode</h4>
+          <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1rem;">
+            In Chrome, Brave, or Edge, visit <code style="color: var(--amber); background: #0b0c10; padding: 2px 6px; border-radius: 4px;">chrome://extensions</code> and flip on <strong>Developer mode</strong> in the top right.
+          </p>
+          <span style="font-size: 0.75rem; color: var(--emerald); font-weight: 600;">✓ Safe & standard for unpacked extensions</span>
+        </div>
+
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem;">
+          <div style="font-size: 1.5rem; font-weight: 900; color: var(--amber); margin-bottom: 0.5rem;">03</div>
+          <h4 style="margin-bottom: 0.5rem;">Load Unpacked & Trade</h4>
+          <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1rem;">
+            Click <strong>Load unpacked</strong>, select the unzipped <code style="color: var(--amber);">extension</code> directory. Open TradingView or Tradovate and start protected trading!
+          </p>
+          <span style="font-size: 0.75rem; color: var(--amber); font-weight: 600;">🛡️ Includes full 14-day free trial</span>
+        </div>
+      </div>
+
+      <div style="background: rgba(232, 160, 32, 0.08); border: 1px dashed rgba(232, 160, 32, 0.3); border-radius: 8px; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <strong style="color: var(--text-hi);">Prefer the 1-Click Chrome Web Store Install?</strong>
+          <p style="font-size: 0.8rem; color: var(--text-dim); margin: 0;">Submission package generated. Targeted keywords: <em>'prop firm risk manager'</em> & <em>'funded trader drawdown alert'</em>.</p>
+        </div>
+        <a href="https://chrome.google.com/webstore" target="_blank" class="btn-secondary" style="font-size: 0.8rem; padding: 0.5rem 1rem;">
+          🌐 View on Chrome Web Store (Pending Review)
+        </a>
+      </div>
+    </section>
+
+    <!-- ── Pricing A/B Test Section ────────────────────────────── -->
+    <section id="pricing" class="ab-pricing-container">
+      <div style="text-align: center; margin-bottom: 1.5rem;">
+        <p class="section-label">Transparent Pricing</p>
+        <h2>Protect Your $50,000 to $300,000 Combine</h2>
+        <p style="color: var(--text-dim);">One combine reset costs $80 to $150. TradeCopilot pays for itself on your first avoided stop-out.</p>
+      </div>
+
+      <!-- Interactive A/B Variant Switcher (For testing and user choice) -->
+      <div class="ab-switcher-bar">
+        <span style="font-size: 0.8rem; color: var(--text-dim);">Active Pricing Model:</span>
+        <button type="button" id="toggle-variant-a" class="ab-toggle-btn active">Option A: Monthly ($29/mo)</button>
+        <button type="button" id="toggle-variant-b" class="ab-toggle-btn">Option B: Lifetime Pass ($199)</button>
+      </div>
+
+      <div class="pricing-card-grid">
+        <!-- Monthly Subscription Plan -->
+        <div class="pricing-card" id="card-monthly">
+          <span class="pricing-badge" id="badge-monthly">14-Day Free Trial</span>
+          <div>
+            <h3>Monthly Funded Pro</h3>
+            <div class="price-num">$29<span style="font-size: 1.1rem; color: var(--text-dim); font-weight: 500;"> / month</span></div>
+            <p class="price-sub">Zero risk. 14 days full access. Cancel anytime in 1 click.</p>
+            
+            <ul class="benefit-list">
+              <li>Full Chrome Extension & HUD Overlay</li>
+              <li>Supports Topstep, Apex, FTMO & FundedNext</li>
+              <li>Real-Time Daily Drawdown Enforcer</li>
+              <li>Position Sizing HUD for Futures & Forex</li>
+              <li>Exportable PineScript v5 Indicator</li>
+              <li>Private Discord Risk Management Channel</li>
+            </ul>
+          </div>
+          <div>
+            <a href="https://buy.stripe.com/3cI6oz6o9ap44IMgM893y00?client_reference_id=tradecopilot_monthly" target="_blank" class="btn-main" style="width: 100%; justify-content: center;" id="btn-checkout-monthly">
+              Start 14-Day Free Trial
+            </a>
+            <div style="text-align: center; font-size: 0.75rem; color: var(--text-dim); margin-top: 8px;">
+              Requires no commitment. Managed via Stripe Portal.
+            </div>
+          </div>
+        </div>
+
+        <!-- Lifetime Pass Plan -->
+        <div class="pricing-card featured" id="card-lifetime">
+          <span class="pricing-badge" id="badge-lifetime">Best Value — Founder Pass</span>
+          <div>
+            <h3>Lifetime Founder's Shield</h3>
+            <div class="price-num">$199<span style="font-size: 1.1rem; color: var(--text-dim); font-weight: 500;"> one-time</span></div>
+            <p class="price-sub">Pay once, own forever. Never pay a monthly fee.</p>
+            
+            <ul class="benefit-list">
+              <li><strong>Everything in Monthly Pro</strong></li>
+              <li>Lifetime License Key (Unlimited devices)</li>
+              <li>All future prop firm preset updates</li>
+              <li>Priority Feature Requests & Direct Support</li>
+              <li>Exclusive TradeGame Combine flex badge</li>
+              <li>Access to Founder AMA & Strategy Sessions</li>
+            </ul>
+          </div>
+          <div>
+            <a href="https://buy.stripe.com/3cI6oz6o9ap44IMgM893y00?client_reference_id=tradecopilot_lifetime" target="_blank" class="btn-main" style="width: 100%; justify-content: center; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35);" id="btn-checkout-lifetime">
+              Get Lifetime Pass ($199)
+            </a>
+            <div style="text-align: center; font-size: 0.75rem; color: var(--text-dim); margin-top: 8px;">
+              One-time payment. Instant license issuance.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stripe Portal & Direct Extension link -->
+      <div style="text-align: center; margin-top: 2rem; font-size: 0.85rem; color: var(--text-dim);">
+        Existing subscriber? <a href="https://billing.stripe.com/p/login/test_4gw28D6a25fO5qg6oo" target="_blank" style="color: var(--amber);">Manage your subscription in Stripe Customer Portal</a>
+        <br>
+        Developer or offline user? <a href="downloads/tradecopilot-extension.zip" download style="color: var(--amber);">Download unpacked Chrome Extension (.zip)</a>
+      </div>
+    </section>
+
+    <!-- ── Hard Compliance & Risk Disclosure ──────────────────── -->
+    <section style="background: #111216; border-radius: 8px; border: 1px solid #20222a; padding: 1.5rem; margin: 3rem 0; font-size: 0.85rem; color: var(--text-dim);">
+      <h4 style="color: var(--text); margin-bottom: 0.5rem;">Educational & Compliance Notice</h4>
+      <p>
+        TradeCopilot and TradeGame are educational software utilities. TradeCopilot is designed strictly as a mathematical position sizing calculator and visual combine rule tracker for browser-based charting platforms.
+      </p>
+      <p>
+        TradeCopilot does NOT execute financial transactions, access your broker credentials, manage funds, or provide automated trading signals or investment advice. Trading in financial markets, futures, forex, and prop firm combines involves substantial risk of loss. Past performance in simulated combines does not guarantee future evaluation success.
+      </p>
+    </section>
+
+  </div>
+</main>
+
+<!-- ── Footer ──────────────────────────────────────────────── -->
+<footer class="site-footer" role="contentinfo">
+  <div class="wrap footer-content">
+    <div class="footer-brand">
+      <a class="site-logo" href="index.html">Trade<span>Game</span></a>
+      <p>Gamified market simulation and risk discipline for the next generation of traders.</p>
+    </div>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="tradecopilot.html">TradeCopilot</a>
+      <a href="legal.html">Legal & Disclaimers</a>
+      <a href="https://discord.gg/YOUR_INVITE_LINK">Discord</a>
+    </div>
+    <div class="footer-legal">
+      <p>&copy; 2026 TradeGame. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ── Client Scripts: Calculator, HUD Simulation & A/B Engine ─ -->
+<script>
+  // 1. Interactive Drawdown Calculator Logic
+  const PRESET_CONFIGS = {
+    topstep50k:  { balance: 50000,  riskPct: 1.0, dailyLimit: 2.0, pointVal: 20, stopPts: 15 },
+    apex50k:     { balance: 50000,  riskPct: 1.0, dailyLimit: 5.0, pointVal: 20, stopPts: 15 },
+    ftmo50k:     { balance: 50000,  riskPct: 1.0, dailyLimit: 5.0, pointVal: 10, stopPts: 25 },
+    topstep100k: { balance: 100000, riskPct: 1.0, dailyLimit: 2.0, pointVal: 20, stopPts: 15 },
+    apex100k:    { balance: 100000, riskPct: 1.0, dailyLimit: 3.0, pointVal: 20, stopPts: 15 },
+    ftmo100k:    { balance: 100000, riskPct: 1.0, dailyLimit: 5.0, pointVal: 10, stopPts: 25 }
+  };
+
+  const calcBalance = document.getElementById('calc-balance');
+  const calcRiskPct = document.getElementById('calc-risk-pct');
+  const calcDailyLimit = document.getElementById('calc-daily-limit');
+  const calcInstrument = document.getElementById('calc-instrument');
+  const calcStopPts = document.getElementById('calc-stop-pts');
+
+  const outDollarRisk = document.getElementById('out-dollar-risk');
+  const outDailyCutoff = document.getElementById('out-daily-cutoff');
+  const outContracts = document.getElementById('out-contracts');
+  const outConsecutive = document.getElementById('out-consecutive-losses');
+  const meterFillBar = document.getElementById('meter-fill-bar');
+
+  function updateCalculator() {
+    const bal = parseFloat(calcBalance.value) || 50000;
+    const rPct = parseFloat(calcRiskPct.value) || 1.0;
+    const dLimit = parseFloat(calcDailyLimit.value) || 4.0;
+    const ptVal = parseFloat(calcInstrument.value) || 20;
+    const stopPts = parseFloat(calcStopPts.value) || 15;
+
+    const dollarRisk = bal * (rPct / 100.0);
+    const dailyDollar = bal * (dLimit / 100.0);
+    const lossPerContract = Math.max(1, stopPts * ptVal);
+    const contracts = dollarRisk / lossPerContract;
+    const consecutiveLosses = Math.max(1, Math.floor(dailyDollar / dollarRisk));
+
+    outDollarRisk.textContent = `$${dollarRisk.toFixed(2)}`;
+    outDailyCutoff.textContent = `-$${dailyDollar.toFixed(2)}`;
+    outContracts.textContent = `${contracts.toFixed(2)} Contracts`;
+    outConsecutive.textContent = `${consecutiveLosses} Consecutive Losses`;
+
+    // Meter bar: 10 losses is 100% safe, 2 is 20% safe
+    const bufferScore = Math.min(100, Math.max(10, consecutiveLosses * 20));
+    meterFillBar.style.width = `${bufferScore}%`;
+
+    // Update simulation preview if active
+    const simRisk = document.getElementById('sim-hud-risk');
+    const simContracts = document.getElementById('sim-hud-contracts');
+    if (simRisk) simRisk.textContent = `$${dollarRisk.toFixed(2)}`;
+    if (simContracts) simContracts.textContent = `${contracts.toFixed(2)} Contracts`;
+  }
+
+  // Preset Buttons
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const conf = PRESET_CONFIGS[btn.dataset.preset];
+      if (conf) {
+        calcBalance.value = conf.balance;
+        calcRiskPct.value = conf.riskPct;
+        calcDailyLimit.value = conf.dailyLimit;
+        calcInstrument.value = conf.pointVal;
+        calcStopPts.value = conf.stopPts;
+        updateCalculator();
+      }
+    });
+  });
+
+  [calcBalance, calcRiskPct, calcDailyLimit, calcInstrument, calcStopPts].forEach(el => {
+    el.addEventListener('input', updateCalculator);
+  });
+
+  // HUD Simulation Trigger
+  const triggerBtn = document.getElementById('trigger-hud-sim-btn');
+  const simBox = document.getElementById('hud-sim-container');
+  const closeSimBtn = document.getElementById('close-sim-btn');
+
+  if (triggerBtn && simBox) {
+    triggerBtn.addEventListener('click', () => {
+      simBox.style.display = 'block';
+      simBox.scrollIntoView({ behavior: 'smooth' });
+    });
+  }
+  if (closeSimBtn && simBox) {
+    closeSimBtn.addEventListener('click', () => {
+      simBox.style.display = 'none';
+    });
+  }
+
+  // 2. Pricing A/B Test Engine (Variant A: $29/mo vs Variant B: $199 Lifetime)
+  // Evaluates performance targeting 25 active subscribers ($725 MRR) or upfront lifetime cash flow.
+  function initABTest() {
+    const urlParams = new URLSearchParams(window.location.search);
+    let variant = urlParams.get('v');
+    if (!variant || (variant !== 'a' && variant !== 'b')) {
+      variant = localStorage.getItem('tc_pricing_variant');
+      if (!variant) {
+        variant = Math.random() < 0.5 ? 'a' : 'b';
+        localStorage.setItem('tc_pricing_variant', variant);
+      }
+    }
+    applyVariant(variant);
+    recordImpression(variant);
+  }
+
+  function recordImpression(v) {
+    const key = v === 'a' ? 'tc_ab_imp_a' : 'tc_ab_imp_b';
+    const count = (parseInt(localStorage.getItem(key) || '0', 10)) + 1;
+    localStorage.setItem(key, count.toString());
+  }
+
+  function recordConversion(variantClicked) {
+    const key = variantClicked === 'a' ? 'tc_ab_conv_a' : 'tc_ab_conv_b';
+    const count = (parseInt(localStorage.getItem(key) || '0', 10)) + 1;
+    localStorage.setItem(key, count.toString());
+    console.log(`[TradeCopilot A/B] Conversion logged for Variant ${variantClicked.toUpperCase()} (Total: ${count})`);
+  }
+
+  function applyVariant(v) {
+    const toggleA = document.getElementById('toggle-variant-a');
+    const toggleB = document.getElementById('toggle-variant-b');
+    const cardMonthly = document.getElementById('card-monthly');
+    const cardLifetime = document.getElementById('card-lifetime');
+    const heroCTA = document.getElementById('hero-primary-cta');
+
+    if (v === 'a') {
+      // Prioritize Monthly
+      toggleA.classList.add('active');
+      toggleB.classList.remove('active');
+      cardMonthly.classList.add('featured');
+      cardLifetime.classList.remove('featured');
+      heroCTA.textContent = '⚡ Start 14-Day Free Trial ($29/mo)';
+      heroCTA.href = 'https://buy.stripe.com/3cI6oz6o9ap44IMgM893y00?client_reference_id=tradecopilot_monthly';
+      console.log('[TradeCopilot A/B] Variant A active: $29/mo subscription emphasized.');
+    } else {
+      // Prioritize Lifetime Pass
+      toggleB.classList.add('active');
+      toggleA.classList.remove('active');
+      cardLifetime.classList.add('featured');
+      cardMonthly.classList.remove('featured');
+      heroCTA.textContent = '⚡ Get Founder Lifetime Pass ($199)';
+      heroCTA.href = 'https://buy.stripe.com/3cI6oz6o9ap44IMgM893y00?client_reference_id=tradecopilot_lifetime';
+      console.log('[TradeCopilot A/B] Variant B active: $199 Lifetime Pass emphasized.');
+    }
+  }
+
+  document.getElementById('toggle-variant-a')?.addEventListener('click', () => {
+    localStorage.setItem('tc_pricing_variant', 'a');
+    applyVariant('a');
+    recordImpression('a');
+  });
+
+  document.getElementById('toggle-variant-b')?.addEventListener('click', () => {
+    localStorage.setItem('tc_pricing_variant', 'b');
+    applyVariant('b');
+    recordImpression('b');
+  });
+
+  // Track CTA clicks
+  document.getElementById('btn-checkout-monthly')?.addEventListener('click', () => recordConversion('a'));
+  document.getElementById('btn-checkout-lifetime')?.addEventListener('click', () => recordConversion('b'));
+  document.getElementById('hero-primary-cta')?.addEventListener('click', () => {
+    const current = localStorage.getItem('tc_pricing_variant') || 'a';
+    recordConversion(current);
+  });
+
+  // Analytics inspector helper
+  window.tcGetAnalytics = function() {
+    const impA = parseInt(localStorage.getItem('tc_ab_imp_a') || '0', 10);
+    const impB = parseInt(localStorage.getItem('tc_ab_imp_b') || '0', 10);
+    const convA = parseInt(localStorage.getItem('tc_ab_conv_a') || '0', 10);
+    const convB = parseInt(localStorage.getItem('tc_ab_conv_b') || '0', 10);
+    const crA = impA > 0 ? ((convA / impA) * 100).toFixed(1) + '%' : '0.0%';
+    const crB = impB > 0 ? ((convB / impB) * 100).toFixed(1) + '%' : '0.0%';
+    console.table({
+      'Variant A ($29/mo)': { Impressions: impA, Conversions: convA, 'Conversion Rate': crA, Target: '25 subs ($725 MRR)' },
+      'Variant B ($199 Lifetime)': { Impressions: impB, Conversions: convB, 'Conversion Rate': crB, Target: '10 passes ($1,990)' }
+    });
+    return { impA, convA, crA, impB, convB, crB };
+  };
+
+  // Initialize
+  updateCalculator();
+  initABTest();
+</script>
+
+</body>
+</html>

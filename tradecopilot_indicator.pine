@@ -1,0 +1,21 @@
+//@version=5
+indicator("TradeCopilot Risk HUD [OmniTender]", overlay=true)
+
+// Input Settings
+accountBalance = input.float(50000.0, "Account Size (USD)", group="Risk Parameters")
+riskPerTrade = input.float(1.0, "Risk Per Trade (%)", group="Risk Parameters")
+maxDailyDD = input.float(4.0, "Max Daily Drawdown (%)", group="Prop Firm Rules")
+
+// Calculations
+dollarRisk = accountBalance * (riskPerTrade / 100.0)
+maxDailyLoss = accountBalance * (maxDailyDD / 100.0)
+
+// Visual HUD Table
+var table hud = table.new(position.top_right, 2, 4, bgcolor=color.new(color.black, 20), border_color=color.orange, border_width=1)
+if barstate.islast
+    table.cell(hud, 0, 0, "TradeCopilot Status", text_color=color.orange, text_size=size.small)
+    table.cell(hud, 1, 0, "ACTIVE", text_color=color.green, text_size=size.small)
+    table.cell(hud, 0, 1, "Max Risk / Trade", text_color=color.white, text_size=size.small)
+    table.cell(hud, 1, 1, "$" + str.tostring(dollarRisk, "#.##"), text_color=color.yellow, text_size=size.small)
+    table.cell(hud, 0, 2, "Daily Cutoff (4%)", text_color=color.white, text_size=size.small)
+    table.cell(hud, 1, 2, "$" + str.tostring(maxDailyLoss, "#.##"), text_color=color.red, text_size=size.small)

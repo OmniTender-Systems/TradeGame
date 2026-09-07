@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TradeCopilot HUD</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 340px;
+      background: #0d0d10;
+      color: #d4d6db;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .header {
+      background: #16171d;
+      padding: 12px 16px;
+      border-bottom: 1px solid #282a33;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 14px;
+      color: #f0f1f3;
+    }
+    .brand span { color: #e8a020; }
+    .badge {
+      background: rgba(232, 160, 32, 0.15);
+      color: #e8a020;
+      font-weight: 700;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(232, 160, 32, 0.4);
+    }
+    .container {
+      padding: 14px 16px;
+    }
+    .field-group {
+      margin-bottom: 12px;
+    }
+    label {
+      display: block;
+      color: #8a8d96;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    select, input {
+      width: 100%;
+      background: #181a22;
+      border: 1px solid #2a2c38;
+      color: #f0f1f3;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      outline: none;
+    }
+    select:focus, input:focus {
+      border-color: #e8a020;
+    }
+    .stats-card {
+      background: #14151b;
+      border: 1px solid #242630;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px dashed #20222b;
+    }
+    .stat-row:last-child {
+      border-bottom: none;
+    }
+    .stat-val {
+      font-weight: 700;
+      color: #f0f1f3;
+    }
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, #e8a020, #f7792c);
+      color: #0d0d0f;
+      font-weight: 700;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      box-shadow: 0 3px 10px rgba(232, 160, 32, 0.3);
+      transition: opacity 0.2s;
+    }
+    .btn-primary:hover {
+      opacity: 0.95;
+    }
+    .footer {
+      background: #111216;
+      padding: 10px 16px;
+      border-top: 1px solid #20222b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+    }
+    .link {
+      color: #e8a020;
+      text-decoration: none;
+    }
+    .link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">
+      <span>🛡️ TradeCopilot</span>
+    </div>
+    <div class="badge" id="trial-badge">14-Day Trial</div>
+  </div>
+
+  <div class="container">
+    <div class="field-group">
+      <label for="preset-select">Prop Firm Rule Preset</label>
+      <select id="preset-select">
+        <option value="topstep50k">Topstep $50K Combine ($1k Daily / $2k Max)</option>
+        <option value="apex50k">Apex $50K ($2.5k Trailing / No Daily)</option>
+        <option value="ftmo50k">FTMO $50K (5% Daily $2.5k / 10% Max)</option>
+        <option value="fundednext50k">FundedNext $50K (5% Daily / 10% Max)</option>
+        <option value="custom">Custom Combine Parameters</option>
+      </select>
+    </div>
+
+    <div class="field-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+      <div>
+        <label for="input-balance">Account ($)</label>
+        <input type="number" id="input-balance" value="50000" step="1000">
+      </div>
+      <div>
+        <label for="input-risk-pct">Risk / Trade (%)</label>
+        <input type="number" id="input-risk-pct" value="1.0" step="0.25">
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label for="input-daily-limit">Daily Loss Cutoff (%)</label>
+      <input type="number" id="input-daily-limit" value="4.0" step="0.5">
+    </div>
+
+    <div class="stats-card">
+      <div class="stat-row">
+        <span>Max Dollar Risk / Trade:</span>
+        <span class="stat-val" id="stat-risk-dollar" style="color: #e8a020;">$500.00</span>
+      </div>
+      <div class="stat-row">
+        <span>Hard Daily Loss Cutoff:</span>
+        <span class="stat-val" id="stat-daily-dollar" style="color: #ef4444;">-$2,000.00</span>
+      </div>
+      <div class="stat-row">
+        <span>Buffer Remaining:</span>
+        <span class="stat-val" id="stat-buffer" style="color: #10b981;">$2,000.00</span>
+      </div>
+      <div class="stat-row">
+        <span>Max Consecutive Losses:</span>
+        <span class="stat-val" id="stat-max-losses">4 Stop-Outs</span>
+      </div>
+    </div>
+
+    <button id="save-btn" class="btn-primary">Save & Sync to Chart HUD</button>
+  </div>
+
+  <div class="footer">
+    <span id="trial-days-label">14 days left</span>
+    <a href="https://buy.stripe.com/3cI6oz6o9ap44IMgM893y00" target="_blank" class="link">Get Pro Shield ($29/mo)</a>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+/* TradeCopilot Floating HUD Overlay Styling */
+
+#tradecopilot-hud-root {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 99999999;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #f0f1f3;
+  user-select: none;
+}
+
+.tc-hud-panel {
+  background: rgba(18, 20, 26, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #2a2c35;
+  border-radius: 10px;
+  width: 320px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 15px rgba(232, 160, 32, 0.15);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.tc-hud-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #16171d;
+  border-bottom: 1px solid #2a2c35;
+  cursor: grab;
+}
+
+.tc-hud-header:active {
+  cursor: grabbing;
+}
+
+.tc-hud-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.tc-hud-brand span {
+  color: #e8a020;
+}
+
+.tc-status-pill {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tc-status-safe {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.tc-status-warn {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.tc-status-locked {
+  background: rgba(239, 68, 68, 0.25);
+  color: #ef4444;
+  border: 1px solid #ef4444;
+  animation: pulse-red 1.5s infinite;
+}
+
+@keyframes pulse-red {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+  50% { box-shadow: 0 0 15px 4px rgba(239, 68, 68, 0.7); }
+}
+
+.tc-hud-controls button {
+  background: transparent;
+  border: none;
+  color: #8a8d96;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+.tc-hud-controls button:hover {
+  color: #f0f1f3;
+}
+
+.tc-hud-body {
+  padding: 12px 14px;
+}
+
+.tc-metric-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.tc-metric-box {
+  background: #1e2028;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #282a33;
+}
+
+.tc-metric-label {
+  font-size: 10px;
+  color: #8a8d96;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.tc-metric-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: #f0f1f3;
+}
+
+.tc-buffer-bar-wrap {
+  margin-bottom: 12px;
+}
+
+.tc-buffer-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.tc-buffer-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: #282a33;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.tc-buffer-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
+  width: 100%;
+  transition: width 0.3s ease;
+}
+
+.tc-quick-calc {
+  background: #16171d;
+  border-radius: 6px;
+  padding: 8px 10px;
+  border: 1px dashed #2a2c35;
+  font-size: 11px;
+}
+
+.tc-calc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.tc-calc-row:last-child {
+  margin-bottom: 0;
+}
+
+.tc-calc-input {
+  background: #0d0d10;
+  border: 1px solid #2a2c35;
+  color: #f0f1f3;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  width: 75px;
+  text-align: right;
+}
+
+.tc-hud-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  background: #111216;
+  border-top: 1px solid #22242c;
+  font-size: 10px;
+  color: #8a8d96;
+}
+
+.tc-trial-tag {
+  color: #e8a020;
+  font-weight: 600;
+}
+
+/* Fullscreen Lockout Overlay */
+.tc-lockout-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(13, 13, 15, 0.92);
+  z-index: 100000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+}
+
+.tc-lockout-card {
+  background: #181920;
+  border: 2px solid #ef4444;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 480px;
+  text-align: center;
+  box-shadow: 0 0 50px rgba(239, 68, 68, 0.4);
+}
+
+.tc-lockout-card h2 {
+  color: #ef4444;
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+.tc-lockout-card p {
+  color: #d4d6db;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.tc-dismiss-btn {
+  background: #2a2c35;
+  color: #f0f1f3;
+  border: 1px solid #3a3c47;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
