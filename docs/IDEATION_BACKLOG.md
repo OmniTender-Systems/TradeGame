@@ -1,34 +1,55 @@
 # Ideation Backlog
 
-This document captures early-stage game design ideas, mechanical concepts, and brainstorms that are not yet approved for the official Game Design Document (GDD).
+This document captures early-stage game design ideas, mechanical concepts, and brainstorms for our trading card / economic simulation game, focusing on blending gameplay with real-world financial mechanics.
 
-## Trading Card / Economic Simulation Mechanics
+## Concept Pitches
 
-The following ideas explore blending trading card game (TCG) mechanics with real-world market data and economic simulation:
+### 1. Real-Market Data Cards
+**One-line Pitch:** Cards whose stats (attack/defense) scale in real-time with live API feeds of actual stock or crypto ticker movements.
+**Complexity Rating:** 4
+**Monetization Potential:** High. Sell booster packs containing high-volatility meme-stock or crypto cards, or offer premium subscriptions for lower-latency data feeds.
 
-1. **Real-World Ticker Decks**
-   Players construct a deck where key character or asset cards are bound to specific real-world stocks, crypto assets, or forex pairs. The base power, health, or resource yield of these cards fluctuates dynamically each day based on the actual real-world percentage change of that asset in the market.
+### 2. Algorithmic Dynamic Pricing
+**One-line Pitch:** An in-game shop where the gold cost of booster packs and items automatically increases or decreases based on aggregate player purchasing velocity.
+**Complexity Rating:** 3
+**Monetization Potential:** Medium. Drives urgency and FOMO during price dips, encouraging players to buy premium currency to capitalize on cheap shop prices.
 
-2. **Commodity-Pegged Boss Battles (PvE)**
-   Co-op or solo PvE encounters where the boss's attributes are tied to real-world commodity prices. For example, an "Oil Baron" boss whose attack power is correlated with crude oil prices, or a "Gold Dragon" whose defense scales with gold spot prices. This bridges macroeconomic trends with gameplay.
+### 3. The Dark Pool Auction House
+**One-line Pitch:** A player-to-player blind-bid marketplace where card transaction histories are hidden, forcing players to estimate true market value without seeing the open order book.
+**Complexity Rating:** 5
+**Monetization Potential:** High. Take a small percentage "transaction fee" (in premium currency) for every successful trade between players.
 
-3. **Macroeconomic Event Cards**
-   Action or spell cards that simulate major market catalysts (e.g., "Interest Rate Hike", "Supply Chain Bottleneck", "Flash Crash"). Playing these cards alters the global rules of the board for a set number of turns, forcing players to adapt to sudden volatility and teaching the impact of macro events.
+### 4. Futures Contracts on Card Drops
+**One-line Pitch:** Players buy and sell contracts predicting the future in-game value of upcoming set releases, settling the difference in gold on release day.
+**Complexity Rating:** 5
+**Monetization Potential:** High. Requires players to lock up premium currency as margin, driving consistent demand for top-ups to avoid liquidation.
 
-4. **The Dark Pool Auction House**
-   A player-to-player marketplace for trading game assets/cards, but implemented using blind-bid (dark pool) mechanics rather than a standard open order book. This teaches players about liquidity, bid-ask spread, and market depth while interacting with the game's economy.
+### 5. Supply Chain Logistics Engine
+**One-line Pitch:** A PvE resource management mode where players must build and protect trade routes to secure the raw materials needed to mint new cards.
+**Complexity Rating:** 4
+**Monetization Potential:** Medium. Players can purchase speed-ups, route protection shields, or cosmetic skins for their transport fleets.
 
-5. **Portfolio Synergies (Sector Rotation)**
-   Having multiple cards from the same market sector (e.g., Tech, Energy, DeFi) in play grants synergistic buffs. However, a "Sector Rotation" mechanic periodically shifts which sectors receive bonuses based on seasonal game cycles or real-world sector performance, forcing players to "rebalance" their active board.
+### 6. Market Manipulation Cards
+**One-line Pitch:** Special spell cards (e.g., "Spoofing" or "Wash Trade") that temporarily distort the perceived stats of a card on the board to force an opponent into a bad trade.
+**Complexity Rating:** 2
+**Monetization Potential:** Low to Medium. Sold primarily as situational tech cards in standard booster packs; highly sought after for competitive meta decks.
 
-6. **The Margin Call Mechanic**
-   Players can "borrow" energy or mana to play high-cost, powerful cards early, but must pay it back with interest over subsequent turns. If their in-game board presence or health drops below a certain threshold, a "Margin Call" triggers, forcing them to discard cards or sacrifice board state to cover the debt.
+### 7. Insider Trading Mechanics
+**One-line Pitch:** Players can spend resources to send "Spies" to peek at their opponent's hand or future deck draws, simulating asymmetric information advantages.
+**Complexity Rating:** 2
+**Monetization Potential:** Low. Primarily a core gameplay mechanic to teach the value of information, though "Spy" animations could have cosmetic upgrades.
 
-7. **Dividend-Yielding Assets**
-   Specific card types that have low offensive capabilities but generate passive resources (e.g., extra card draw, mana, or shield points) every turn. This mimics dividend-paying stocks or crypto staking, teaching the value of passive income over aggressive capital gains.
+### 8. Dividend-Yielding Land Assets
+**One-line Pitch:** Rare permanent board cards that cannot attack but generate passive resources each turn to simulate real-estate or dividend stock portfolios.
+**Complexity Rating:** 1
+**Monetization Potential:** High. "Land" or "Corporate HQ" cards are incredibly desirable and can be sold as high-tier premium assets or ultra-rare chase cards.
 
-8. **Short Selling Spells**
-   A mechanic allowing a player to "short" an opponent's high-value card. If the opponent's card is successfully destroyed or neutralized within a certain timeframe, the short-seller gains significant resources. If the card survives and attacks, the short-seller takes compounded damage (simulating infinite risk).
+### 9. Short Selling Duels
+**One-line Pitch:** A combat mechanic where players bet against an opponent's card surviving the round; if it lives, the shorter pays a massive penalty, simulating infinite risk.
+**Complexity Rating:** 3
+**Monetization Potential:** Medium. Players might need to buy "Insurance" tokens with premium currency to cap their downside risk on aggressive shorts.
 
-9. **Volatility Index (VIX) Multiplier**
-   A global board state meter that tracks real-world market volatility (VIX). On high VIX days, the variance of all card effects increases (e.g., a card that normally does a flat 5 damage might now do anywhere from 1 to 9 damage), making gameplay more chaotic and teaching risk management in volatile environments.
+### 10. Central Bank Expansion Bosses
+**One-line Pitch:** Raid bosses that periodically flood the game's economy with "printed" resources, causing global inflation that players must hedge against using safe-haven cards.
+**Complexity Rating:** 4
+**Monetization Potential:** Medium. Players buy special "Hedge" starter decks specifically tuned to survive the inflation phases of the PvE campaign.
